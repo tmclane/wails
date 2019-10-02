@@ -1,6 +1,8 @@
 package wails
 
 import (
+	"sync"
+
 	"github.com/wailsapp/wails/cmd"
 	"github.com/wailsapp/wails/lib/binding"
 	"github.com/wailsapp/wails/lib/event"
@@ -108,10 +110,18 @@ func (a *App) start() error {
 		return err
 	}
 
+	var wg sync.WaitGroup
+
 	// Run the renderer
 	for _, r := range a.renderer {
-		go r.Run()
+		go func() {
+			wg.Add(1)
+			r.Run()
+			wg.Done()
+		}()
 	}
+
+	wg.Done()
 
 	return nil
 }
