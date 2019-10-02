@@ -7,5 +7,5 @@ type EventManager interface {
 	PushEvent(*messages.EventData)
 	Emit(eventName string, optionalData ...interface{})
 	On(eventName string, callback func(...interface{}))
-	Start(Renderer)
+	Start([]Renderer)
 }

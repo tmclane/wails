@@ -3,9 +3,10 @@ package event
 import (
 	"fmt"
 	"sync"
+
+	"github.com/wailsapp/wails/lib/interfaces"
 	"github.com/wailsapp/wails/lib/logger"
 	"github.com/wailsapp/wails/lib/messages"
-	"github.com/wailsapp/wails/lib/interfaces"
 )
 
 // Manager handles and processes events
@@ -14,7 +15,7 @@ type Manager struct {
 	listeners      map[string][]*eventListener
 	exit           bool
 	log            *logger.CustomLogger
-	renderer       interfaces.Renderer // Messages will be dispatched to the frontend
+	renderer       []interfaces.Renderer // Messages will be dispatched to the frontend
 }
 
 // NewManager creates a new event manager with a 100 event buffer
@@ -80,7 +81,7 @@ func (e *Manager) Emit(eventName string, optionalData ...interface{}) {
 }
 
 // Start the event manager's queue processing
-func (e *Manager) Start(renderer interfaces.Renderer) {
+func (e *Manager) Start(renderer []interfaces.Renderer) {
 
 	e.log.Info("Starting")
 
@@ -105,7 +106,9 @@ func (e *Manager) Start(renderer interfaces.Renderer) {
 				})
 
 				// Notify renderer
-				e.renderer.NotifyEvent(event)
+				for _, renderer := range e.renderer {
+					renderer.NotifyEvent(event)
+				}
 
 				// Notify Go listeners
 				var listenersToRemove []*eventListener

@@ -17,7 +17,7 @@ type Manager struct {
 	internalMethods  *internalMethods
 	initMethods      []*boundMethod
 	log              *logger.CustomLogger
-	renderer         interfaces.Renderer
+	renderer         []interfaces.Renderer
 	runtime          interfaces.Runtime // The runtime object to pass to bound structs
 	objectsToBind    []interface{}
 	bindPackageNames bool // Package name should be considered when binding
@@ -40,7 +40,7 @@ func (b *Manager) BindPackageNames() {
 }
 
 // Start the binding manager
-func (b *Manager) Start(renderer interfaces.Renderer, runtime interfaces.Runtime) error {
+func (b *Manager) Start(renderer []interfaces.Renderer, runtime interfaces.Runtime) error {
 	b.log.Info("Starting")
 	b.renderer = renderer
 	b.runtime = runtime
@@ -133,7 +133,9 @@ func (b *Manager) bindMethod(object interface{}) error {
 			b.methods[fullMethodName] = newMethod
 
 			// Inform renderer of new binding
-			b.renderer.NewBinding(fullMethodName)
+			for _, renderer := range b.renderer {
+				renderer.NewBinding(fullMethodName)
+			}
 		}
 	}
 
@@ -153,7 +155,9 @@ func (b *Manager) bindFunction(object interface{}) error {
 	b.functions[newFunction.fullName] = newFunction
 
 	// Register with Renderer
-	b.renderer.NewBinding(newFunction.fullName)
+	for _, renderer := range b.renderer {
+		renderer.NewBinding(newFunction.fullName)
+	}
 
 	return nil
 }

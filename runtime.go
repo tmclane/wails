@@ -20,12 +20,12 @@ type Runtime struct {
 }
 
 // NewRuntime creates a new Runtime struct
-func NewRuntime(eventManager interfaces.EventManager, renderer interfaces.Renderer) *Runtime {
+func NewRuntime(eventManager interfaces.EventManager, renderer []interfaces.Renderer) *Runtime {
 	return &Runtime{
 		Events:     runtime.NewEvents(eventManager),
 		Log:        runtime.NewLog(),
-		Dialog:     runtime.NewDialog(renderer),
-		Window:     runtime.NewWindow(renderer),
+		Dialog:     runtime.NewDialog(renderer[0]),
+		Window:     runtime.NewWindow(renderer[0]),
 		Browser:    runtime.NewBrowser(),
 		FileSystem: runtime.NewFileSystem(),
 	}
