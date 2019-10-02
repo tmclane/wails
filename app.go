@@ -116,7 +116,9 @@ func (a *App) start() error {
 	for _, r := range a.renderer {
 		wg.Add(1)
 		go func() {
-			r.Run()
+			if err := r.Run(); err != nil {
+				a.log.Fatalf("Error starting renerer: %v", err)
+			}
 			wg.Done()
 		}()
 	}
