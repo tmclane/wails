@@ -114,8 +114,8 @@ func (a *App) start() error {
 
 	// Run the renderer
 	for _, r := range a.renderer {
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
 			r.Run()
 			wg.Done()
 		}()
