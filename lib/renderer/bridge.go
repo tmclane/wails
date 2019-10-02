@@ -149,17 +149,20 @@ func (h *Bridge) start(conn *websocket.Conn) {
 
 // Run the app in Bridge mode!
 func (h *Bridge) Run() error {
-	h.server = &http.Server{Addr: ":34115"}
-	http.HandleFunc("/bridge", h.wsBridgeHandler)
+	if h.server == nil {
+		h.server = &http.Server{Addr: ":34115"}
+		http.HandleFunc("/bridge", h.wsBridgeHandler)
 
-	h.log.Info("Bridge mode started.")
-	h.log.Info("The frontend will connect automatically.")
+		h.log.Info("Bridge mode started.")
+		h.log.Info("The frontend will connect automatically.")
 
-	err := h.server.ListenAndServe()
-	if err != nil {
-		h.log.Fatal(err.Error())
+		err := h.server.ListenAndServe()
+		if err != nil {
+			h.log.Fatal(err.Error())
+			return err
+		}
 	}
-	return err
+	return nil
 }
 
 // NewBinding creates a new binding with the frontend
