@@ -45,7 +45,7 @@ func CreateApp(optionalConfig ...*AppConfig) *App {
 
 	result := &App{
 		logLevel:       "debug",
-		renderer:       renderer.NewWebView(),
+		renderer:       &renderer.MultiHead{},
 		ipc:            ipc.NewManager(),
 		bindingManager: binding.NewManager(),
 		eventManager:   event.NewManager(),
@@ -96,9 +96,9 @@ func (a *App) start() error {
 	a.log.Info("Starting")
 
 	// Check if we are to run in bridge mode
-	if BuildMode == cmd.BuildModeBridge {
-		a.renderer = &renderer.Bridge{}
-	}
+	//	if BuildMode == cmd.BuildModeBridge {
+	//		a.renderer = &renderer.Bridge{}
+	//	}
 
 	// Initialise the renderer
 	err := a.renderer.Initialise(a.config, a.ipc, a.eventManager)
