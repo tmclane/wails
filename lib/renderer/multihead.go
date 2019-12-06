@@ -1,7 +1,7 @@
 package renderer
 
 import (
-	"sync"
+	"fmt"
 
 	"github.com/wailsapp/wails/lib/interfaces"
 	"github.com/wailsapp/wails/lib/messages"
@@ -9,12 +9,15 @@ import (
 
 // MultiHead is a backend that hosts multiple renderers simultaneously
 type MultiHead struct {
+	bridge    interfaces.Renderer
+	webview   interfaces.Renderer
 	renderers []interfaces.Renderer
 }
 
 // Initialize creates and initializes both the wrapped webview and the bridge renderer instances.
 func (d *MultiHead) Initialise(app interfaces.AppConfig, ipc interfaces.IPCManager, emgr interfaces.EventManager) error {
-	d.renderers = []interfaces.Renderer{&Bridge{}, NewWebView()}
+	// Note: WebView MUST be last
+	d.renderers = []interfaces.Renderer{&Bridge{}, &WebView{}}
 
 	for _, r := range d.renderers {
 		if err := r.Initialise(app, ipc, emgr); err != nil {
@@ -32,18 +35,19 @@ func NewMultiHead() interfaces.Renderer {
 
 // Run calls the Run function on each of the registered Renderers in goroutines waiting for them to finish
 func (d *MultiHead) Run() error {
-	var wg sync.WaitGroup
 	errs := make([]error, len(d.renderers))
 
-	for i, r := range d.renderers {
-		wg.Add(1)
-
+	for i, r := range d.renderers[:len(d.renderers)-1] {
 		go func() {
 			errs[i] = r.Run()
 		}()
 	}
 
-	wg.Wait()
+	// The last element is the WebView which doesn't like to be placed inside another goroutine
+	// which is why it is treated differently.
+	if err := d.renderers[len(d.renderers)-1].Run(); err != nil {
+		return err
+	}
 
 	for _, err := range errs {
 		if err != nil {
@@ -57,6 +61,7 @@ func (d *MultiHead) Run() error {
 // NewBinding forwards the binding request to all registered renderers
 func (d *MultiHead) NewBinding(bindingName string) error {
 	for _, r := range d.renderers {
+		fmt.Printf("NewBinding(%s)\n", bindingName)
 		if err := r.NewBinding(bindingName); err != nil {
 			return err
 		}
@@ -122,6 +127,13 @@ func (d *MultiHead) SetColour(color string) error {
 		}
 	}
 	return nil
+}
+
+// EnableConsole calls EnableConsole on all registered Renderers
+func (d *MultiHead) EnableConsole() {
+	for _, r := range d.renderers {
+		r.EnableConsole()
+	}
 }
 
 // Fullscreen calls Fullscreen on all registered Renderers
