@@ -1,20 +1,24 @@
 /*
- _       __      _ __    
+ _       __      _ __
 | |     / /___ _(_) /____
 | | /| / / __ `/ / / ___/
-| |/ |/ / /_/ / / (__  ) 
-|__/|__/\__,_/_/_/____/  
+| |/ |/ / /_/ / / (__  )
+|__/|__/\__,_/_/_/____/
 The lightweight framework for web-like apps
 (c) Lea Anthony 2019-present
 */
 /* jshint esversion: 6 */
 
 function init() {
+    var url = "'ws://localhost:34115/bridge';";
+    if (window.location.hostname !== undefined) {
+        url = 'ws://' + window.location.hostname + ':34115/bridge';
+    }
 	// Bridge object
 	window.wailsbridge = {
 		reconnectOverlay: null,
 		reconnectTimer: 300,
-		wsURL: 'ws://localhost:34115/bridge',
+		wsURL: url,
 		connectionState: null,
 		config: {},
 		websocket: null,
