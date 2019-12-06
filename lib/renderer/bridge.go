@@ -124,6 +124,8 @@ func (h *Bridge) start(conn *websocket.Conn) {
 	// set external.invoke
 	h.log.Infof("Connected to frontend.")
 
+	wailsBridge := mewn.String("../../runtime/assets/bridge.js")
+	h.evalJS(wailsBridge, jsMessage)
 	wailsRuntime := mewn.String("../../runtime/assets/wails.js")
 	h.evalJS(wailsRuntime, wailsRuntimeMessage)
 
