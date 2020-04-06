@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 	"strings"
 
@@ -27,6 +28,8 @@ func init() {
 	var forceRebuild = false
 	var debugMode = false
 	var typescriptFilename = ""
+	var outputDirectory = "build"
+	var binaryName = ""
 	var verbose = false
 	var platform = ""
 
@@ -40,6 +43,8 @@ func init() {
 		BoolFlag("f", "Force rebuild of application components", &forceRebuild).
 		BoolFlag("d", "Build in Debug mode", &debugMode).
 		BoolFlag("verbose", "Verbose output", &verbose).
+		StringFlag("o", "output directory", &outputDirectory).
+		StringFlag("b", "binary name", &binaryName).
 		StringFlag("t", "Generate Typescript definitions to given file (at runtime)", &typescriptFilename)
 
 	var b strings.Builder
@@ -72,6 +77,12 @@ func init() {
 		err := projectOptions.LoadConfig(fs.Cwd())
 		if err != nil {
 			return fmt.Errorf("Unable to find 'project.json'. Please check you are in a Wails project directory")
+		}
+		if binaryName != "" {
+			projectOptions.BinaryName = binaryName
+		}
+		if outputDirectory != "" {
+			projectOptions.BinaryName = path.Join(outputDirectory, projectOptions.BinaryName)
 		}
 
 		// Set cross-compile
